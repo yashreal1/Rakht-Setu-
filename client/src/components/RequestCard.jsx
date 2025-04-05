@@ -1,7 +1,7 @@
 import React from "react";
 import Card from "./Card";
 
-const RequestCard = ({ request, onDonate }) => {
+const RequestCard = ({ request = {}, onDonate }) => {
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -19,7 +19,7 @@ const RequestCard = ({ request, onDonate }) => {
         <div className="flex-1">
           <div className="flex items-center space-x-2">
             <h3 className="text-xl font-bold text-gray-900">
-              {request.bloodGroup}
+              {request.bloodGroup || "Unknown"}
             </h3>
             <span className="px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 rounded-full">
               Blood Required
@@ -36,12 +36,12 @@ const RequestCard = ({ request, onDonate }) => {
                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
               />
             </svg>
-            Posted on {formatDate(request.createdAt)}
+            Posted on {request.createdAt ? formatDate(request.createdAt) : "Unknown date"}
           </p>
         </div>
         <div className="text-right">
           <div className="flex flex-col justify-center items-center w-16 h-16 bg-red-50 rounded-lg">
-            <p className="text-3xl font-bold text-red-600">{request.units}</p>
+            <p className="text-3xl font-bold text-red-600">{request.units || 0}</p>
             <p className="text-xs font-medium text-red-600">Units</p>
           </div>
         </div>

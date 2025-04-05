@@ -1,6 +1,14 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (to, subject, text) => {
+  if (!to || !subject || !text) {
+    throw new Error('Missing required email parameters');
+  }
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error('Email configuration is missing');
+  }
+
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -17,10 +25,16 @@ const sendEmail = async (to, subject, text) => {
       text,
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`📧 Email sent to ${to}`);
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`📧 Email sent successfully to ${to}`);
+    return result;
   } catch (error) {
-    console.error("❌ Error sending email:", error.message);
+    console.error("❌ Error sending email:", {
+      to,
+      error: error.message,
+      stack: error.stack
+    });
+    throw error;
   }
 };
 

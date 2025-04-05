@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const RequestBlood = () => {
   const [bloodGroup, setBloodGroup] = useState("");
   const [units, setUnits] = useState("");
   const [location, setLocation] = useState("");
   const token = localStorage.getItem("token");
+  const { user } = useAuth();
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -24,13 +26,26 @@ const RequestBlood = () => {
   const handleRequest = async (e) => {
     e.preventDefault();
 
+    // Validate required fields
+    const missingFields = [];
+    if (!bloodGroup) missingFields.push('Blood Group');
+    if (!units) missingFields.push('Units');
+    if (!location) missingFields.push('Location');
+
+    if (missingFields.length > 0) {
+      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
     try {
-      // Either use the response variable or remove it
-      // const response = await axios.post(
-      // If you need the response but aren't using it yet, you can comment it:
-      /* const response = */ await axios.post(
+      const response = await axios.post(
         "http://localhost:5000/api/blood-requests",
-        { bloodGroup, units, location },
+        { 
+          bloodGroup, 
+          units: parseInt(units), 
+          location,
+          requestedBy: user._id // Add the requestedBy field
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -40,22 +55,24 @@ const RequestBlood = () => {
       alert("Blood request submitted!");
       setBloodGroup("");
       setUnits("");
+      setLocation("");
     } catch (error) {
       console.error("Error requesting blood:", error);
-      alert("Failed to submit request");
+      const errorMessage = error.response?.data?.message || "Failed to submit request";
+      alert(errorMessage);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-4 text-red-700 text-center">
+    <div className="p-6 mx-auto mt-10 max-w-md bg-white rounded shadow">
+      <h2 className="mb-4 text-2xl font-bold text-center text-red-700">
         Request Blood
       </h2>
       <form onSubmit={handleRequest} className="space-y-4">
         <select
           value={bloodGroup}
           onChange={(e) => setBloodGroup(e.target.value)}
-          className="w-full border p-2 rounded"
+          className="p-2 w-full rounded border"
           required
         >
           <option value="">Select Blood Group</option>
@@ -75,7 +92,7 @@ const RequestBlood = () => {
           value={units}
           onChange={(e) => setUnits(e.target.value)}
           placeholder="Enter number of units"
-          className="w-full border p-2 rounded"
+          className="p-2 w-full rounded border"
           required
         />
 
@@ -84,13 +101,13 @@ const RequestBlood = () => {
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Fetching location..."
-          className="w-full border p-2 rounded"
+          className="p-2 w-full rounded border"
           required
         />
 
         <button
           type="submit"
-          className="w-full bg-red-700 text-white py-2 rounded hover:bg-red-800"
+          className="py-2 w-full text-white bg-red-700 rounded hover:bg-red-800"
         >
           Submit Request
         </button>
