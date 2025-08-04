@@ -23,6 +23,20 @@ const sendEmail = async (to, subject, text) => {
       to,
       subject,
       text,
+      html: text.includes('http://localhost:3000/donate/') ? `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #e11d48;">Blood Request Alert</h2>
+          ${text.split('\n').map(line => 
+            line.startsWith('http') ? 
+            `<div style="text-align: center; margin: 20px 0;">
+              <a href="${line}" style="background-color: #e11d48; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                Donate Blood Now
+              </a>
+            </div>` :
+            `<p style="margin: 10px 0;">${line}</p>`
+          ).join('')}
+        </div>
+      ` : undefined
     };
 
     const result = await transporter.sendMail(mailOptions);

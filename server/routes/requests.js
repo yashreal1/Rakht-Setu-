@@ -69,11 +69,26 @@ router.post("/", auth, async (req, res) => {
     // find donors (simple: all users except requester)
     const donors = await User.find({ _id: { $ne: req.user._id } });
 
+    const donationUrl = `http://localhost:3000/donate/${request._id}`;
     const emailPromises = donors.map(donor => 
       sendEmail(
         donor.email,
         "🚨 Blood Request Alert",
-        `Hello ${donor.name},\n\nA new blood request has been made:\n\nBlood Group: ${bloodGroup}\nUnits: ${units}\nLocation: ${location}\n\nPlease login to Life Bridge if you're available to donate.`
+        `Hello ${donor.name},
+
+A new blood request has been made:
+
+Blood Group: ${bloodGroup}
+Units: ${units}
+Location: ${location}
+
+If you're available to donate, please click the link below:
+${donationUrl}
+
+Your contribution can save a life!
+
+Best regards,
+Life Bridge Team`
       )
     );
 

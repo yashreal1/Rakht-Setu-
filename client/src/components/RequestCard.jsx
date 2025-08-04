@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "./Card";
 
 const RequestCard = ({ request = {}, onDonate }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -9,11 +12,17 @@ const RequestCard = ({ request = {}, onDonate }) => {
       day: "numeric",
     });
   };
+  
+  const toggleDetails = () => {
+    setShowDetails(!showDetails);
+  };
 
   return (
     <Card
       status={request.status}
-      className="transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+      className={`transition-all duration-300 ${isHovered ? 'scale-[1.02] shadow-xl' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
@@ -56,7 +65,7 @@ const RequestCard = ({ request = {}, onDonate }) => {
                 : "U"}
             </span>
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-semibold text-gray-900">
               {request.requestedBy?.name || "Unknown User"}
             </p>
@@ -74,13 +83,62 @@ const RequestCard = ({ request = {}, onDonate }) => {
               {request.requestedBy?.hospital || "Hospital not specified"}
             </p>
           </div>
+          <button 
+            onClick={toggleDetails}
+            className="text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors duration-200"
+          >
+            {showDetails ? 'Hide Details' : 'View Details'}
+          </button>
         </div>
+        
+        {showDetails && (
+          <div className="mt-4 pt-4 border-t border-gray-200 animate-fadeIn">
+            <h4 className="text-sm font-semibold mb-2">Request Details</h4>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-gray-500">Status</p>
+                <p className="font-medium">{request.status || 'Pending'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Location</p>
+                <p className="font-medium">{request.location?.address || 'Not specified'}</p>
+              </div>
+              {request.urgency && (
+                <div className="col-span-2">
+                  <p className="text-gray-500">Urgency</p>
+                  <p className="font-medium">{request.urgency}</p>
+                </div>
+              )}
+              {request.notes && (
+                <div className="col-span-2">
+                  <p className="text-gray-500">Additional Notes</p>
+                  <p className="font-medium">{request.notes}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-between items-center mt-6">
+        <div className="flex items-center">
+          <span className="inline-flex items-center px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full mr-2">
+            <svg className="mr-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+            </svg>
+            {request.status === 'fulfilled' ? 'Fulfilled' : 'Active'}
+          </span>
+          <span className="text-xs text-gray-500">
+            ID: {request._id?.substring(0, 8) || 'Unknown'}
+          </span>
+        </div>
         <button
           onClick={() => onDonate(request)}
-          className="inline-flex items-center px-6 py-3 text-white rounded-xl font-semibold transition-all duration-300 bg-primary-600 hover:bg-primary-700 hover:shadow-lg transform hover:-translate-y-0.5"
+          disabled={request.status === 'fulfilled'}
+          className={`inline-flex items-center px-6 py-3 text-white rounded-xl font-semibold transition-all duration-300 
+            ${request.status === 'fulfilled' 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-primary-600 hover:bg-primary-700 hover:shadow-lg transform hover:-translate-y-0.5'}`}
         >
           <svg className="mr-2 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -88,15 +146,11 @@ const RequestCard = ({ request = {}, onDonate }) => {
               d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
             />
           </svg>
-          Donate Now
+          {request.status === 'fulfilled' ? 'Already Donated' : 'Donate Now'}
         </button>
       </div>
     </Card>
   );
 };
-
-// export default RequestCard;
-//   );
-// };
 
 export default RequestCard;

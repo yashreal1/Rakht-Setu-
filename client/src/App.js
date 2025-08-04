@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Donate from './pages/Donate';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -24,8 +26,10 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/request-blood" element={<RequestBlood />} />
+              <Route path="/donate/:requestId" element={<Donate />} />
             </Routes>
           </main>
+          <Footer />
         </div>
       </AuthProvider>
     </BrowserRouter>
