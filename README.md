@@ -92,7 +92,7 @@ RakhtSetu is a comprehensive blood donation platform that connects blood donors 
 
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/rakht-setu.git
+   git clone https://github.com/yashreal1/rakht-setu.git
    cd rakht-setu
    ```
 
